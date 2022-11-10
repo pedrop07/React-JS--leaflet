@@ -1,14 +1,17 @@
-import { MapContainer, Marker, Popup, TileLayer, Polyline } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import { useMapEvents } from 'react-leaflet/hooks';
-import { useState, useEffect } from 'react';
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { useMap } from 'react-leaflet/hooks';
+import L from 'leaflet';
+import { useState } from 'react';
+import Local from "./components/Local"
 import api from "./services/api";
-import "./app.css";
+import "leaflet/dist/leaflet.css";
+import "./App.css";
+
 
 function App() {
 
   const [input, setInput] = useState('');
-  const [location, setLocation] = useState(null);
+  const [location, setLocation] = useState([]);
 
   if(input != ""){
     var inputValues = input.trim().split(' ');
@@ -19,34 +22,8 @@ function App() {
     })
   };
 
-  console.log(location)
-
-  function MyComponent() {
-    const map = useMapEvents({
-      click: (event) => {
-        event.setZoom(13);
-        
-        map.flyTo(event.latlng, map.getZoom());
-      }
-    })
-    return null
-  }
-  // function MyComponent() {
-  //   const map = useMapEvents({
-  //     click: (event) => {
-  //       if(locations.length >= 2){
-  //         console.log(event);
-  //       } else{
-  //         setLocations((value) => [...value , event.latlng]);
-  //       }
-  //       map.flyTo(event.latlng, map.getZoom());
-  //     }
-  //   })
-  //   return null
-  // }
-    
-  async function handleSearch(e){
-    e.preventDefault();
+  async function handleSearch(event){
+    event.preventDefault();
 
     if(input.length < 9){
       alert('Digite um Localização valida');
@@ -54,44 +31,98 @@ function App() {
     }
 
     try {
-      // const response = await api.get(`search?key=pk.a6364d20957b04aac85c76e812c5cff0&q=fortaleza%20aldeota&format=json`);
       const response = await api.get(`search?key=pk.a6364d20957b04aac85c76e812c5cff0&q=${result.join('')}&format=json`);
       response.data.hasOwnProperty('erro') ? alert('Localização invalida ou não encontrada') : setLocation(response.data);
       
     } catch (error) {
       alert('erro ao Buscar localização');
-      setLocation("");
     }    
   }
-    
 
+  const MapControl = () =>{
+    const map = useMap();
+
+    if(location.length === 1){
+      const {lat, lon} = location[0];
+      map.flyTo([lat, lon], 16);
+    } else{
+      map.flyTo(map.getCenter(), 3);
+    }
+  }
+  
   return (
     <div className="wrapper">
-      Digite uma localização para visualizar no mapa
-       <form onSubmit={handleSearch}>
-          <input 
-            type="text"
-            value={input}
-            placeholder="Digite um local"
-            className='inputCep'
-            onChange={(e) => {
-              setInput(e.target.value);
-            }}
-          />
+      <div className="form-wrapper">
+        <span className="form-wrapper__title">
+          Digite uma localização para visualizar no mapa
+        </span>
+        <form className="form-wrapper__form" onSubmit={handleSearch}>
+            <input 
+              type="text"
+              value={input}
+              placeholder="Digite um local"
+              className='inputCep'
+              onChange={(e) => {
+                setInput(e.target.value);
+              }}
+            />
 
-          <button className='searchBtn' >
-            enviar
-          </button>
-      </form>
-      <MapContainer center={[-3.721413683872664, -38.510599136352546]} zoom={3} scrollWheelZoom={true} dragging={true}>
+            <button>
+              Enviar
+            </button>
+        </form>
+      </div>
+      <MapContainer
+        center={[-3.72, -38.51]}
+        zoom={3}
+        minZoom={3}
+        scrollWheelZoom={true}
+        dragging={true}
+      >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        
+        { 
+          location.length === 1 && (
+            <Marker position={[location[0].lat, location[0].lon]}>
+              <Popup>
+                Ponto de partida
+              </Popup>
+            </Marker>
+          )
+        }
 
-        <MyComponent />
+        {
+          location.length > 1 && (
+            location.map((local) => {
+              const { lat, lon, place_id } = local;
+              return(
+                <Marker position={[lat, lon]} key={place_id}>
+                  <Popup>
+                    Ponto de partida
+                  </Popup>
+                </Marker>
+              )
+            })
+          )
+        }
+
+        <MapControl />
       </MapContainer>
 
+      { location  && location.map((local) => {
+          const { display_name, place_id } = local;
+          return (
+            <Local
+              key={place_id}
+              name={display_name}
+            />
+          )
+        })
+      }
+      
     </div>
   )
 }

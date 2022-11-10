@@ -1,4 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+*{
+    padding: 0;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
 .leaflet-container {
   width: 100%;
-  height: 100vh;
+  height: 90vh;
+}
+
+.form-wrapper{
+  background-color: #1aa6e8;
+  width: 100%;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+}
+
+.form-wrapper__title{
+  color: #d4edfb;
+}
+
+.form-wrapper__form input{
+  outline: none;
+  border: none;
+  padding: .5rem 1rem;
+  border-radius: .2rem 0 0 .2rem;
+}
+
+
+button{
+  cursor: pointer;
+  outline: none;
+  border: none;
+  background-color: #faebd7;
+  padding: .5rem 1rem;
+  border-radius: 0 .2rem .2rem 0;
 }
