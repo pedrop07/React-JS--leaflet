@@ -32,7 +32,6 @@
   border-radius: .2rem 0 0 .2rem;
 }
 
-
 button{
   cursor: pointer;
   outline: none;
@@ -40,4 +39,12 @@ button{
   background-color: #faebd7;
   padding: .5rem 1rem;
   border-radius: 0 .2rem .2rem 0;
+}
+
+#spinner{
+  position: absolute;
+  z-index: 99999;
+  height: 100px;
+  top: 50%;
+  left: 50%;
 }
